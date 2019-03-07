@@ -50,6 +50,11 @@ def rearrange_sequence(inseq=''):
     """
     standard_aminoacids = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L',
                            'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
+    
+    if len(inseq) == 0:
+        print('Length of input sequence is 0, check input sequence')
+        exit()
+        
     # checks if length of input sequence can accommodate equal number of amino acids
     aas_list = list(set(inseq.upper()))
     for residue in aas_list:
