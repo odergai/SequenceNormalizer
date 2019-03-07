@@ -4,3 +4,4 @@ SequenceNormalizer can be imported as a module, in this case rearrange_sequence(
 rearrange_sequence() returns a tuple (start, end, length) of the shortest sub-sequence.
 
 Important! start and end coordinates are given in 0-based form.
+SequenceNormalizer.py normalizes counts of amino acids initially found in the input sequence without trying to fit all 20 canonical amino acids. 
