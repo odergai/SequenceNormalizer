@@ -127,6 +127,7 @@ if __name__ == '__main__':
     parser.add_argument("inseq", type=str, help="Enter input  protein sequence,"
                                                 " Please enter protein sequence in single letter code")
     parser.add_argument('-v', '--verbose', choices=['True', 'T', 'False', 'F'],
+                        default='True',
                         help='choice to output only length of sub-sequence or start, end and length')
     args = parser.parse_args()
     output = rearrange_sequence(args.inseq)
