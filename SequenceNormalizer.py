@@ -10,7 +10,8 @@ __author__ = 'odergai'
                 <int>   <int>   <int>
                 otherwise prints just a length of substring to STDOUT.
     Prints:
-        tuple (start, end, length) of the sun-sequence to be substituted.
+        tuple (start, end, length) of the sub-sequence to be substituted.
+        indices are give in 0-based form!
     """
 
 import re
@@ -50,31 +51,36 @@ def rearrange_sequence(inseq=''):
     """
     standard_aminoacids = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L',
                            'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
-    
+    inseq = inseq.upper()
+    inseq = inseq.replace(' ', '')
+
     if len(inseq) == 0:
         print('Length of input sequence is 0, check input sequence')
-        exit()
-        
+        return None
+
     # checks if length of input sequence can accommodate equal number of amino acids
-    aas_list = list(set(inseq.upper()))
-    if len(aas_list) == 1:
-        print('Input sequence contains only one type of amino acid')
-        exit()
+    aas_list = list(set(inseq))
     for residue in aas_list:
         if residue not in standard_aminoacids:
-            print('Check sequence: {} is non a standard amino acid notation'.format(residue))
-            exit()
+            print('Check input sequence: {} is not a standard amino acid notation'.format(residue))
+            return None
     if len(inseq) % len(aas_list) > 0:
-        print('no possible rearrangement for protein of length {0}'.format(len(inseq)))
-        exit()
+        print('no possible rearrangement for protein of length {0} for {1} amino acids'.format(len(inseq), len(aas_list)))
+        return None
     else:
         target_length = int(len(inseq) / len(aas_list))
 
+    if len(aas_list) == 1:
+        print('Input sequence contains only one type of amino acid')
+        return None
     aas_index_dict = {}  # {'aa':[ind1 ... indN]}
     target_dict = {}  # {'aa':number of residues to be substituted,}
     subseq_dict = {}  # {'aa':(start, end, distance) }
     over_rep_aas_indexes = []  # list of indexes of overrepresented amino acids
+    aas_count_list = []
+
     for aa in aas_list:
+        aas_count_list.append(inseq.count(aa))
         if inseq.count(aa) > target_length:
             aas_index_dict[aa] = [ind.start() for ind in re.finditer(aa, inseq)]
             target_dict[aa] = len(aas_index_dict[aa]) - target_length
@@ -82,10 +88,16 @@ def rearrange_sequence(inseq=''):
             subseq_dict[aa] = get_shortest_subset(aminoacid=aa,
                                                   aas_index_dict=aas_index_dict,
                                                   target_length=target_length)
+    aas_count_list = sorted(aas_count_list)
+    if aas_count_list[0] == aas_count_list[-1]:
+        print('The sequence is already equilibrated: \
+        each amino acid has {0} counts'.format(aas_count_list[1]))
+        return None
 
     min_dist_list = [subseq_dict[aa] for aa in sorted(subseq_dict,
                                                       key=lambda aa: subseq_dict[aa][2],
                                                       reverse=True)]
+
     min_dist = min_dist_list[0][2]
     threshold = len(aas_index_dict)  # number of overrepresented amino acids
     over_rep_subset = [i for i in over_rep_aas_indexes if i <= (len(inseq) - min_dist)]
@@ -95,18 +107,16 @@ def rearrange_sequence(inseq=''):
                                         key=lambda aa: len(aas_index_dict[aa]),
                                         reverse=True)]
 
-
     # This block of code compares indexes of all overrepresented amino acids
-    # with position of the shortest sub-sequence for the amino acid to balance which
+    # with position of the shortest sub-sequence for the amino acid to equilibrate which
     # one needs to substitute the longest sub-sequence
-
     keep_min_dist = True
     for k in aa_to_search:
         hit = len([i for i in aas_index_dict[k] if min_dist_list[0][0] <= i <= min_dist_list[0][1]])
         if hit < target_dict[k]:
             keep_min_dist = False
             break
-    if keep_min_dist:               # if all other excessive amino acids will be substituted in this range
+    if keep_min_dist:                            # if all other excessive amino acids will be substituted in this range
         return min_dist_list[0]     # return the shortest sub-sequence
 
     # Scans sequence with sliding window of length min_dist
@@ -133,17 +143,19 @@ def rearrange_sequence(inseq=''):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("inseq", type=str, help="Enter input  protein sequence,"
-                                                "Enter protein sequence should in single letter code")
+                                                "Enter protein sequence in single letter code")
     parser.add_argument('-v', '--verbose', choices=['True', 'T', 'False', 'F'],
                         default='True',
                         help='choice to output only length of sub-sequence or start, end and length')
     args = parser.parse_args()
     output = rearrange_sequence(args.inseq)
-    if args.verbose in ['True', 'T']:
+    if output != None:
+        if args.verbose in ['True', 'T']:
+            print('zero-based indices are used')
+            print('start{0}end{0}length'.format('\t'))
 
-        print('start{0}end{0}length'.format('\t'))
-
-        print('\t'.join(str(x) for x in output))
+            print('\t'.join(str(x) for x in output))
+        else:
+            print(output[2])
     else:
-        print(output[2])
-
+        print('No possible rearrangement found')
