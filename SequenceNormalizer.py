@@ -1,6 +1,6 @@
 __author__ = 'odergai'
-"""seq_rearrange2 takes as an argument string containing proteins sequence
-    and return length of minimal sub-sequence that need to be substituted
+"""SequenceNormalizer takes as an argument string containing proteins sequence
+    and return length of minimal sub-sequence that needs to be substituted
     to have all amino acids equally represented.
     Args:
         :param inseq : input protein sequence
