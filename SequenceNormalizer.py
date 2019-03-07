@@ -44,7 +44,7 @@ def rearrange_sequence(inseq=''):
     """Find  the shortest sub-sequence which accommodates all excessive residues
     of all types
     Args:
-        :param inseq : input protein sequence (default '').
+        :param inseq : input protein sequence in FASTA format (default '').
     Returns:
         tuple (start, end, length) of the shortest sub-sequence
     """
@@ -57,6 +57,9 @@ def rearrange_sequence(inseq=''):
         
     # checks if length of input sequence can accommodate equal number of amino acids
     aas_list = list(set(inseq.upper()))
+    if len(aas_list) == 1:
+        print('Input sequence contains only one type of amino acid')
+        exit()
     for residue in aas_list:
         if residue not in standard_aminoacids:
             print('Check sequence: {} is non a standard amino acid notation'.format(residue))
@@ -130,7 +133,7 @@ def rearrange_sequence(inseq=''):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument("inseq", type=str, help="Enter input  protein sequence,"
-                                                " Please enter protein sequence in single letter code")
+                                                "Enter protein sequence should in single letter code")
     parser.add_argument('-v', '--verbose', choices=['True', 'T', 'False', 'F'],
                         default='True',
                         help='choice to output only length of sub-sequence or start, end and length')
